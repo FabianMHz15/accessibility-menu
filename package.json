@@ -17,7 +17,8 @@
       "require": "./dist/accessibility-menu.umd.js",
       "types": "./dist/index.d.ts"
     },
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/accessibility-menu.css",
+    "./dist/accessibility-menu.css": "./dist/accessibility-menu.css"
   },
   "files": [
     "dist",

@@ -27,7 +27,7 @@ npm install accessibility-menu
 import { createApp } from 'vue'
 import App from './App.vue'
 import AccessibilityMenuPlugin from 'accessibility-menu'
-import 'accessibility-menu/style.css'
+import 'accessibility-menu/dist/accessibility-menu.css'
 
 const app = createApp(App)
 app.use(AccessibilityMenuPlugin)
@@ -46,16 +46,16 @@ export default defineConfig({
 ```js
 <!-- App.vue -->
 <template>
-  <UApp>
+  
     <h1>Mi Aplicación</h1>
     <AccessibilityMenu />
-  </UApp>
+  
 </template>
 2️⃣ Nuxt 3
 
 // plugins/accessibility.client.ts
 import AccessibilityMenuPlugin from 'accessibility-menu'
-import 'accessibility-menu/style.css'
+import 'accessibility-menu/dist/accessibility-menu.css'
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(AccessibilityMenuPlugin)
@@ -77,7 +77,7 @@ Sigue la guía de instalación de Nuxt UI para Laravel:
 import { createApp, h } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
 import AccessibilityMenuPlugin from 'accessibility-menu'
-import 'accessibility-menu/style.css'
+import 'accessibility-menu/dist/accessibility-menu.css'
 
 createInertiaApp({
   resolve: name => {
@@ -125,7 +125,7 @@ export default defineConfig({
 ```js
 <script setup>
 import { AccessibilityMenu } from 'accessibility-menu'
-import 'accessibility-menu/style.css'
+import 'accessibility-menu/dist/accessibility-menu.css'
 </script>
 
 <template>
@@ -153,7 +153,7 @@ Puedes personalizar los colores del componente pasando una configuración de col
 ```vue
 <script setup>
 import { AccessibilityMenu } from 'accessibility-menu'
-import 'accessibility-menu/style.css'
+import 'accessibility-menu/dist/accessibility-menu.css'
 
 const customColors = {
   primaryColor: '#7c3aed',        // Color principal (botón flotante, toggles)
@@ -175,7 +175,7 @@ const customColors = {
 ```vue
 <script setup>
 import { useAccessibility } from 'accessibility-menu'
-import 'accessibility-menu/style.css'
+import 'accessibility-menu/dist/accessibility-menu.css'
 
 // Configurar colores al inicializar
 useAccessibility({
