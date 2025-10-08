@@ -1,0 +1,31 @@
+# Archivos de desarrollo
+src/
+examples/
+playground/
+.nuxt/
+.output/
+node_modules/
+
+# Configuración
+vite.config.ts
+tsconfig.json
+.gitignore
+
+# Archivos del sistema
+*.log
+.DS_Store
+.env
+.env.*
+
+# Control de versiones
+.git
+.github
+
+# Documentación interna
+CLAUDE.md
+
+# Testing
+*.test.ts
+*.spec.ts
+__tests__/
+coverage/

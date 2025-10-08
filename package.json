@@ -1,0 +1,67 @@
+{
+  "name": "accessibility-menu",
+  "version": "1.0.0",
+  "description": "Componente de accesibilidad WCAG 2.1 AA para Vue 3, Nuxt 4 y Laravel",
+  "main": "./dist/accessibility-menu.umd.js",
+  "module": "./dist/accessibility-menu.es.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && vue-tsc --declaration --emitDeclarationOnly",
+    "preview": "vite preview",
+    "prepublishOnly": "npm run build"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/accessibility-menu.es.js",
+      "require": "./dist/accessibility-menu.umd.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "vue",
+    "vue3",
+    "nuxt",
+    "laravel",
+    "vite",
+    "accessibility",
+    "a11y",
+    "wcag",
+    "dyslexia",
+    "screen-reader",
+    "tts",
+    "vue-component",
+    "accessibility-tools"
+  ],
+  "author": "Fabián Márquez",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FabianMHz15/accessibility-menu.git"
+  },
+  "homepage": "https://github.com/FabianMHz15/accessibility-menu#readme",
+  "bugs": {
+    "url": "https://github.com/FabianMHz15/accessibility-menu/issues"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.7.0",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.9",
+    "vite-plugin-dts": "^4.5.4",
+    "vue": "^3.5.22",
+    "vue-tsc": "^3.1.1"
+  },
+  "dependencies": {
+    "@fontsource/opendyslexic": "^5.2.5"
+  }
+}

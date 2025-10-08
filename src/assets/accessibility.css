@@ -1,0 +1,86 @@
+/* Fuente OpenDyslexic */
+@import '@fontsource/opendyslexic';
+
+/* Variables CSS de colores de accesibilidad */
+:root {
+    --accessibility-primary: #2563eb;
+    --accessibility-primary-hover: #1d4ed8;
+    --accessibility-link-highlight-bg: #fef08a;
+    --accessibility-link-highlight-border: #eab308;
+    --accessibility-reading-highlight-bg: #bfdbfe;
+    --accessibility-reading-highlight-border: #3b82f6;
+}
+
+/* Estilos de accesibilidad */
+.dyslexic-font * {
+    font-family: 'OpenDyslexic', sans-serif !important;
+}
+
+.high-contrast {
+    filter: contrast(1.5);
+}
+
+.high-contrast * {
+    border-color: currentColor !important;
+}
+
+.high-contrast a {
+    text-decoration: underline !important;
+}
+
+.highlight-links a {
+    background-color: var(--accessibility-link-highlight-bg) !important;
+    padding: 2px 4px !important;
+    border-radius: 4px !important;
+    text-decoration: underline !important;
+    box-shadow: 0 0 0 2px var(--accessibility-link-highlight-border) !important;
+}
+
+.highlight-links a:hover {
+    background-color: color-mix(in srgb, var(--accessibility-link-highlight-bg) 80%, white) !important;
+    box-shadow: 0 0 0 3px var(--accessibility-link-highlight-border) !important;
+}
+
+.reading-highlight {
+    background-color: var(--accessibility-reading-highlight-bg) !important;
+    outline: 2px solid var(--accessibility-reading-highlight-border) !important;
+    outline-offset: 2px !important;
+}
+
+.reading-cursor {
+    position: absolute;
+    pointer-events: none;
+    background-color: color-mix(in srgb, var(--accessibility-reading-highlight-border) 20%, transparent);
+    border: 2px solid var(--accessibility-reading-highlight-border);
+    border-radius: 4px;
+    z-index: 9999;
+    transition: all 0.3s ease;
+}
+
+*:focus-visible {
+    outline: 3px solid var(--accessibility-primary) !important;
+    outline-offset: 2px !important;
+}
+
+html {
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+body {
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

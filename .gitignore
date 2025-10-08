@@ -1,0 +1,12 @@
+CLAUDE.md
+/dist
+/node_modules
+/package-lock.json
+/yarn.lock
+/pnpm-lock.yaml
+/bun.lockb
+/bun.lock
+/bun.lock.json
+/bun.lock.yaml
+/bun.lock.json
+/examples
