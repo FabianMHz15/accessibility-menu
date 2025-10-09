@@ -765,6 +765,16 @@ watch(isOpen, (newValue) => {
     box-shadow: 0 0 0 2px var(--accessibility-primary);
 }
 
+.close-button .icon {
+    color: #111827;
+}
+
+@media (prefers-color-scheme: dark) {
+    .close-button .icon {
+        color: white;
+    }
+}
+
 /* Body */
 .panel-body {
     padding: 1rem;
