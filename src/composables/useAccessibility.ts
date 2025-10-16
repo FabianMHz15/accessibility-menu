@@ -1,4 +1,5 @@
 import { ref, computed } from "vue"
+import type { LocaleCode, AccessibilityMessages } from '../locales/types'
 
 export interface AccessibilityColorConfig {
   primaryColor?: string
@@ -7,6 +8,13 @@ export interface AccessibilityColorConfig {
   linkHighlightBorder?: string
   readingHighlightBg?: string
   readingHighlightBorder?: string
+}
+
+export interface AccessibilityConfig {
+  colors?: AccessibilityColorConfig
+  locale?: LocaleCode
+  messages?: Partial<Record<LocaleCode, Partial<AccessibilityMessages>>>
+  useGlobalI18n?: boolean
 }
 
 const defaultColors: Required<AccessibilityColorConfig> = {
@@ -21,7 +29,7 @@ const defaultColors: Required<AccessibilityColorConfig> = {
 // Estado global para colores
 const colors = ref<Required<AccessibilityColorConfig>>({ ...defaultColors })
 
-export const useAccessibility = (colorConfig?: AccessibilityColorConfig) => {
+export const useAccessibility = (config?: AccessibilityConfig) => {
     const fontSize = ref(100)
     const isDyslexicFont = ref(false)
     const isHighContrast = ref(false)
@@ -30,19 +38,22 @@ export const useAccessibility = (colorConfig?: AccessibilityColorConfig) => {
     const readOnSelect = ref(false)
 
     // Aplicar configuración de colores si se proporciona
-    if (colorConfig) {
-      colors.value = { ...defaultColors, ...colorConfig }
+    if (config?.colors) {
+      colors.value = { ...defaultColors, ...config.colors }
       applyColors(colors.value)
     }
 
-    const config = computed(() => ({
+    const accessibilityConfig = computed(() => ({
       fontSize: fontSize.value,
       isDyslexicFont: isDyslexicFont.value,
       isHighContrast: isHighContrast.value,
       isHighlightLinks: isHighlightLinks.value,
       readOnHover: readOnHover.value,
       readOnSelect: readOnSelect.value,
-      colors: colors.value
+      colors: colors.value,
+      locale: config?.locale,
+      messages: config?.messages,
+      useGlobalI18n: config?.useGlobalI18n
     }))
 
     return {
@@ -52,7 +63,7 @@ export const useAccessibility = (colorConfig?: AccessibilityColorConfig) => {
       isHighlightLinks,
       readOnHover,
       readOnSelect,
-      config,
+      config: accessibilityConfig,
       colors
     }
 }

@@ -1,11 +1,24 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, onUnmounted } from 'vue';
 import type { AccessibilityColorConfig } from '../composables/useAccessibility';
+import type { LocaleCode, AccessibilityMessages } from '../locales/types';
+import { useI18n } from '../composables/useI18n';
+import { availableLocales } from '../locales';
 
-// Props para configuración de colores
+// Props para configuración de colores e i18n
 const props = defineProps<{
   colors?: AccessibilityColorConfig
+  locale?: LocaleCode
+  messages?: Partial<Record<LocaleCode, Partial<AccessibilityMessages>>>
+  useGlobalI18n?: boolean
 }>();
+
+// Inicializar i18n
+const { t, ttsLang, locale, setLocale } = useI18n({
+  locale: props.locale,
+  messages: props.messages,
+  useGlobalI18n: props.useGlobalI18n
+});
 
 // Estado del menú
 const isOpen = ref(false);
@@ -62,7 +75,11 @@ onMounted(() => {
         const savedReadOnHover = localStorage.getItem('accessibility-read-on-hover');
         const savedReadOnSelect = localStorage.getItem('accessibility-read-on-select');
 
-        if (savedFontSize) fontSize.value = parseInt(savedFontSize);
+        if (savedFontSize) {
+            const parsedSize = parseInt(savedFontSize);
+            // Validar el valor cargado del localStorage
+            fontSize.value = Math.min(Math.max(parsedSize, 80), 200);
+        }
         if (savedDyslexicFont) isDyslexicFont.value = savedDyslexicFont === 'true';
         if (savedHighContrast) isHighContrast.value = savedHighContrast === 'true';
         if (savedHighlightLinks) isHighlightLinks.value = savedHighlightLinks === 'true';
@@ -111,6 +128,15 @@ const applySettings = () => {
 
 // Watchers para guardar cambios
 watch(fontSize, (newValue) => {
+    // Validar que el fontSize esté dentro del rango permitido
+    if (newValue < 80) {
+        fontSize.value = 80;
+        return;
+    }
+    if (newValue > 200) {
+        fontSize.value = 200;
+        return;
+    }
     localStorage.setItem('accessibility-font-size', newValue.toString());
     applySettings();
 });
@@ -150,7 +176,7 @@ watch(readOnSelect, (newValue) => {
 
 // Funciones de control
 const increaseFontSize = () => {
-    if (fontSize.value < 150) fontSize.value += 10;
+    if (fontSize.value < 200) fontSize.value += 10;
 };
 
 const decreaseFontSize = () => {
@@ -164,7 +190,7 @@ const resetFontSize = () => {
 // Lector de pantalla
 const toggleReading = () => {
     if (!speechSynthesis.value) {
-        alert('Tu navegador no soporta la síntesis de voz.');
+        alert(t('speechNotSupported'));
         return;
     }
 
@@ -181,7 +207,7 @@ const startReading = () => {
     const content = document.body.innerText;
 
     currentUtterance.value = new SpeechSynthesisUtterance(content);
-    currentUtterance.value.lang = 'es-MX';
+    currentUtterance.value.lang = ttsLang.value;
     currentUtterance.value.rate = 1.0;
     currentUtterance.value.pitch = 1.0;
 
@@ -220,7 +246,7 @@ const speakText = (text: string, element?: HTMLElement) => {
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'es-MX';
+    utterance.lang = ttsLang.value;
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
 
@@ -342,7 +368,7 @@ watch(isOpen, (newValue) => {
         <button
             @click="isOpen = true"
             class="accessibility-button"
-            aria-label="Abrir menú de accesibilidad"
+            :aria-label="t('ariaOpenMenu')"
             aria-expanded="false"
         >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon">
@@ -372,14 +398,14 @@ watch(isOpen, (newValue) => {
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                         <div>
-                            <h2 class="header-title">Accesibilidad</h2>
-                            <p class="header-subtitle">Ajusta la interfaz según tus necesidades</p>
+                            <h2 class="header-title">{{ t('title') }}</h2>
+                            <p class="header-subtitle">{{ t('subtitle') }}</p>
                         </div>
                     </div>
                     <button
                         @click="isOpen = false"
                         class="close-button"
-                        aria-label="Cerrar menú"
+                        :aria-label="t('ariaCloseMenu')"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -396,7 +422,7 @@ watch(isOpen, (newValue) => {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="label-icon">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
                                 </svg>
-                                Tamaño de Fuente
+                                {{ t('fontSize') }}
                             </label>
                             <span class="badge">{{ fontSize }}%</span>
                         </div>
@@ -406,7 +432,7 @@ watch(isOpen, (newValue) => {
                                 @click="decreaseFontSize"
                                 :disabled="fontSize <= 80"
                                 class="control-button"
-                                aria-label="Disminuir tamaño de fuente"
+                                :aria-label="t('decreaseFontSize')"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon-sm">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
@@ -417,16 +443,16 @@ watch(isOpen, (newValue) => {
                                 type="range"
                                 v-model="fontSize"
                                 min="80"
-                                max="150"
+                                max="200"
                                 step="10"
                                 class="slider"
                             />
 
                             <button
                                 @click="increaseFontSize"
-                                :disabled="fontSize >= 150"
+                                :disabled="fontSize >= 200"
                                 class="control-button"
-                                aria-label="Aumentar tamaño de fuente"
+                                :aria-label="t('increaseFontSize')"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon-sm">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -435,7 +461,7 @@ watch(isOpen, (newValue) => {
                         </div>
 
                         <button @click="resetFontSize" class="reset-font-button">
-                            Restablecer tamaño
+                            {{ t('resetFontSize') }}
                         </button>
                     </div>
 
@@ -447,14 +473,14 @@ watch(isOpen, (newValue) => {
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="label-icon">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802" />
                             </svg>
-                            Fuente para Dislexia
+                            {{ t('dyslexicFont') }}
                         </label>
                         <button
                             @click="isDyslexicFont = !isDyslexicFont"
                             :class="['toggle-button', { 'toggle-active': isDyslexicFont }]"
                             role="switch"
                             :aria-checked="isDyslexicFont"
-                            aria-label="Activar fuente para dislexia"
+                            :aria-label="t('ariaToggleDyslexic')"
                         >
                             <span :class="['toggle-circle', { 'toggle-circle-active': isDyslexicFont }]"></span>
                         </button>
@@ -468,14 +494,14 @@ watch(isOpen, (newValue) => {
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="label-icon">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
                             </svg>
-                            Alto Contraste
+                            {{ t('highContrast') }}
                         </label>
                         <button
                             @click="isHighContrast = !isHighContrast"
                             :class="['toggle-button', { 'toggle-active': isHighContrast }]"
                             role="switch"
                             :aria-checked="isHighContrast"
-                            aria-label="Activar alto contraste"
+                            :aria-label="t('ariaToggleContrast')"
                         >
                             <span :class="['toggle-circle', { 'toggle-circle-active': isHighContrast }]"></span>
                         </button>
@@ -489,14 +515,14 @@ watch(isOpen, (newValue) => {
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="label-icon">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
                             </svg>
-                            Resaltar Enlaces
+                            {{ t('highlightLinks') }}
                         </label>
                         <button
                             @click="isHighlightLinks = !isHighlightLinks"
                             :class="['toggle-button', { 'toggle-active': isHighlightLinks }]"
                             role="switch"
                             :aria-checked="isHighlightLinks"
-                            aria-label="Resaltar todos los enlaces"
+                            :aria-label="t('ariaToggleLinks')"
                         >
                             <span :class="['toggle-circle', { 'toggle-circle-active': isHighlightLinks }]"></span>
                         </button>
@@ -510,7 +536,7 @@ watch(isOpen, (newValue) => {
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="label-icon">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
                             </svg>
-                            Lector de Pantalla
+                            {{ t('screenReader') }}
                         </label>
                         <button
                             @click="toggleReading"
@@ -522,7 +548,7 @@ watch(isOpen, (newValue) => {
                             <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
                             </svg>
-                            {{ isReading ? 'Detener Lectura Completa' : 'Leer Página Completa' }}
+                            {{ isReading ? t('stopReading') : t('readFullPage') }}
                         </button>
                     </div>
 
@@ -535,16 +561,16 @@ watch(isOpen, (newValue) => {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="label-icon">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243l-1.59-1.59" />
                                 </svg>
-                                Leer al Pasar Mouse
+                                {{ t('readOnHover') }}
                             </label>
-                            <p class="description">Lee el texto cuando pasas el cursor sobre él</p>
+                            <p class="description">{{ t('readOnHoverDesc') }}</p>
                         </div>
                         <button
                             @click="readOnHover = !readOnHover"
                             :class="['toggle-button', { 'toggle-active': readOnHover }]"
                             role="switch"
                             :aria-checked="readOnHover"
-                            aria-label="Activar lectura al pasar el mouse"
+                            :aria-label="t('ariaToggleHover')"
                         >
                             <span :class="['toggle-circle', { 'toggle-circle-active': readOnHover }]"></span>
                         </button>
@@ -559,19 +585,43 @@ watch(isOpen, (newValue) => {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="label-icon">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
                                 </svg>
-                                Leer Texto Seleccionado
+                                {{ t('readOnSelect') }}
                             </label>
-                            <p class="description">Lee el texto cuando lo seleccionas</p>
+                            <p class="description">{{ t('readOnSelectDesc') }}</p>
                         </div>
                         <button
                             @click="readOnSelect = !readOnSelect"
                             :class="['toggle-button', { 'toggle-active': readOnSelect }]"
                             role="switch"
                             :aria-checked="readOnSelect"
-                            aria-label="Activar lectura de texto seleccionado"
+                            :aria-label="t('ariaToggleSelect')"
                         >
                             <span :class="['toggle-circle', { 'toggle-circle-active': readOnSelect }]"></span>
                         </button>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Selector de Idioma -->
+                    <div class="section">
+                        <label class="label">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="label-icon">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802" />
+                            </svg>
+                            {{ t('language') }}
+                        </label>
+                        <div class="language-selector">
+                            <button
+                                v-for="lang in availableLocales"
+                                :key="lang.code"
+                                @click="setLocale(lang.code)"
+                                :class="['language-button', { 'language-button-active': locale === lang.code }]"
+                                :aria-label="`${t('language')}: ${lang.name}`"
+                            >
+                                <span class="language-flag">{{ lang.flag }}</span>
+                                <span class="language-name">{{ lang.name }}</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="divider"></div>
@@ -581,7 +631,7 @@ watch(isOpen, (newValue) => {
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                         </svg>
-                        Restablecer Todo
+                        {{ t('resetAll') }}
                     </button>
 
                     <!-- Información -->
@@ -590,8 +640,8 @@ watch(isOpen, (newValue) => {
                             <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                         </svg>
                         <div>
-                            <h4 class="info-title">Información</h4>
-                            <p class="info-text">Estos ajustes se guardan automáticamente y se aplicarán en todas las páginas.</p>
+                            <h4 class="info-title">{{ t('infoTitle') }}</h4>
+                            <p class="info-text">{{ t('infoText') }}</p>
                         </div>
                     </div>
                 </div>
@@ -1150,5 +1200,86 @@ watch(isOpen, (newValue) => {
 .icon-sm {
     width: 1rem;
     height: 1rem;
+}
+
+/* Language selector */
+.language-selector {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.language-button {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 0.5rem;
+    border: 2px solid #d1d5db;
+    border-radius: 0.5rem;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.language-button:hover {
+    background-color: #f9fafb;
+    border-color: #9ca3af;
+}
+
+@media (prefers-color-scheme: dark) {
+    .language-button {
+        background-color: #111827;
+        border-color: #4b5563;
+    }
+
+    .language-button:hover {
+        background-color: #1f2937;
+        border-color: #6b7280;
+    }
+}
+
+.language-button.language-button-active {
+    border-color: var(--accessibility-primary);
+    background-color: color-mix(in srgb, var(--accessibility-primary) 10%, white);
+}
+
+@media (prefers-color-scheme: dark) {
+    .language-button.language-button-active {
+        background-color: color-mix(in srgb, var(--accessibility-primary) 20%, #111827);
+    }
+}
+
+.language-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accessibility-primary), 0 0 0 4px color-mix(in srgb, var(--accessibility-primary) 30%, transparent);
+}
+
+.language-flag {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.language-name {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+@media (prefers-color-scheme: dark) {
+    .language-name {
+        color: #d1d5db;
+    }
+}
+
+.language-button-active .language-name {
+    color: var(--accessibility-primary);
+    font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+    .language-button-active .language-name {
+        color: color-mix(in srgb, var(--accessibility-primary) 80%, white);
+    }
 }
 </style>

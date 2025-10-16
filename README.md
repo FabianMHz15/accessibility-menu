@@ -4,15 +4,18 @@
 
 ## ✨ Características
 
-- 📏 Control de tamaño de fuente (80% - 150%)
+- 📏 Control de tamaño de fuente (80% - 200%)
 - 🔤 Fuente OpenDyslexic para dislexia
 - ☀️ Alto contraste
 - 🔗 Resaltado de enlaces
 - 🔊 Lector de pantalla (TTS)
 - 🖱️ Lectura al pasar mouse
 - ✍️ Lectura de texto seleccionado
+- 🌍 **Soporte multiidioma (i18n)** - Español e Inglés
+- 🎨 Personalización de colores
 - 💾 Persistencia en localStorage
-- ⚡ Compatible con Vue 3, Nuxt 3 y Laravel
+- ⚡ Compatible con Vue 3, Nuxt 4 y Laravel
+- ♿ Cumple con WCAG 2.1 AA
 
 ## 📦 Instalación
 
@@ -179,8 +182,8 @@ import 'accessibility-menu/dist/accessibility-menu.css'
 
 // Configurar colores al inicializar
 useAccessibility({
-  primaryColor: '#7c3aed',
-  primaryHoverColor: '#6d28d9',
+  primaryColor: '#0056b3',
+  primaryHoverColor: '#0252A6',
   linkHighlightBg: '#fde68a',
   linkHighlightBorder: '#f59e0b',
   readingHighlightBg: '#ddd6fe',
@@ -202,14 +205,194 @@ useAccessibility({
 
 **Nota:** Todos los colores son opcionales. Si no se especifica un color, se usará el valor por defecto.
 
-### 📋 Requisitos
+## 🌍 Internacionalización (i18n)
+
+El componente incluye soporte multiidioma con Español e Inglés por defecto. El usuario puede cambiar el idioma directamente desde el menú de accesibilidad.
+
+### Idiomas Disponibles
+
+- 🇪🇸 Español (es) - Idioma por defecto
+- 🇺🇸 Inglés (en)
+
+### Configurar el Idioma Inicial
+
+#### Opción 1: Mediante Props en el Componente
+
+```vue
+<template>
+  <AccessibilityMenu locale="en" />
+</template>
+```
+
+#### Opción 2: Mediante el Composable
+
+```vue
+<script setup>
+import { useAccessibility } from 'accessibility-menu'
+
+useAccessibility({
+  locale: 'en'
+})
+</script>
+```
+
+### Integración con Vue I18n
+
+Si tu proyecto ya usa `vue-i18n`, el componente lo detectará automáticamente y buscará las traducciones en la ruta `accessibility.*`. Si no las encuentra, usará sus traducciones internas.
+
+#### Ejemplo con Vue I18n existente:
+
+```js
+// i18n.js
+import { createI18n } from 'vue-i18n'
+
+const i18n = createI18n({
+  locale: 'es',
+  messages: {
+    es: {
+      accessibility: {
+        title: 'Accesibilidad Personalizada',
+        subtitle: 'Personaliza tu experiencia',
+        // ... más traducciones
+      }
+    },
+    en: {
+      accessibility: {
+        title: 'Custom Accessibility',
+        subtitle: 'Customize your experience',
+        // ... más traducciones
+      }
+    }
+  }
+})
+
+export default i18n
+```
+
+```js
+// main.js
+import { createApp } from 'vue'
+import App from './App.vue'
+import i18n from './i18n'
+import AccessibilityMenuPlugin from 'accessibility-menu'
+import 'accessibility-menu/dist/accessibility-menu.css'
+
+createApp(App)
+  .use(i18n)
+  .use(AccessibilityMenuPlugin)
+  .mount('#app')
+```
+
+### Personalizar Traducciones
+
+Puedes sobrescribir traducciones específicas sin necesidad de vue-i18n:
+
+```vue
+<script setup>
+import { AccessibilityMenu } from 'accessibility-menu'
+
+const customMessages = {
+  es: {
+    title: 'Herramientas de Accesibilidad',
+    subtitle: 'Ajusta según tus preferencias'
+  },
+  en: {
+    title: 'Accessibility Tools',
+    subtitle: 'Adjust to your preferences'
+  }
+}
+</script>
+
+<template>
+  <AccessibilityMenu :messages="customMessages" />
+</template>
+```
+
+### Deshabilitar Integración con Vue I18n
+
+Si tu proyecto usa vue-i18n pero prefieres que el componente use sus traducciones internas:
+
+```vue
+<template>
+  <AccessibilityMenu :use-global-i18n="false" />
+</template>
+```
+
+### Keys de Traducción Disponibles
+
+```typescript
+interface AccessibilityMessages {
+  // Header
+  title: string
+  subtitle: string
+  close: string
+
+  // Font Size
+  fontSize: string
+  increaseFontSize: string
+  decreaseFontSize: string
+  resetFontSize: string
+
+  // Features
+  dyslexicFont: string
+  highContrast: string
+  highlightLinks: string
+
+  // Screen Reader
+  screenReader: string
+  readFullPage: string
+  stopReading: string
+
+  // Reading Modes
+  readOnHover: string
+  readOnHoverDesc: string
+  readOnSelect: string
+  readOnSelectDesc: string
+
+  // Actions
+  resetAll: string
+
+  // Info
+  infoTitle: string
+  infoText: string
+
+  // Language
+  language: string
+
+  // Alerts
+  speechNotSupported: string
+
+  // Aria Labels
+  ariaOpenMenu: string
+  ariaCloseMenu: string
+  ariaToggleDyslexic: string
+  ariaToggleContrast: string
+  ariaToggleLinks: string
+  ariaToggleHover: string
+  ariaToggleSelect: string
+}
+```
+
+### Text-to-Speech por Idioma
+
+El TTS (Text-to-Speech) se configura automáticamente según el idioma seleccionado:
+
+- Español: `es-MX`
+- Inglés: `en-US`
+
+## 📋 Requisitos
+
 - Vue 3.x
-- Nuxt UI 2.x (se instala automáticamente como peer dependency)
 - Node.js 18+
-- 🎯 Compatibilidad
-- Framework	Versión	Compatible
-- Vue 3	^3.0.0	✅
-- Nuxt 3	^3.0.0	✅
-- Laravel + Vite	10.x+	✅
-- 📄 Licencia
-- MIT © Fabián Márquez
+
+## 🎯 Compatibilidad
+
+| Framework | Versión | Compatible |
+|-----------|---------|-----------|
+| Vue 3 | ^3.0.0 | ✅ |
+| Nuxt 4 | ^4.0.0 | ✅ |
+| Laravel + Vite | 10.x+ | ✅ |
+
+## 📄 Licencia
+
+MIT © Fabián Márquez
