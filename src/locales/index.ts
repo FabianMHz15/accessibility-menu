@@ -11,9 +11,9 @@ export const messages: AccessibilityLocaleMessages = {
 
 export const defaultLocale: LocaleCode = 'es'
 
-export const availableLocales: { code: LocaleCode; name: string; flag: string }[] = [
-  { code: 'es', name: 'Español', flag: '🇪🇸' },
-  { code: 'en', name: 'English', flag: '🇺🇸' }
+export const availableLocales: { code: LocaleCode; name: string;  }[] = [
+  { code: 'es', name: 'Español' },
+  { code: 'en', name: 'English' }
 ]
 
 // Mapeo de códigos de idioma para Text-to-Speech

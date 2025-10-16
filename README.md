@@ -13,6 +13,7 @@
 - ✍️ Lectura de texto seleccionado
 - 🌍 **Soporte multiidioma (i18n)** - Español e Inglés
 - 🎨 Personalización de colores
+- 🌓 **Control de tema (claro/oscuro/auto)**
 - 💾 Persistencia en localStorage
 - ⚡ Compatible con Vue 3, Nuxt 4 y Laravel
 - ♿ Cumple con WCAG 2.1 AA
@@ -45,8 +46,7 @@ export default defineConfig({
     vue(),
   ]
 })
-```
-```js
+
 <!-- App.vue -->
 <template>
   
@@ -54,7 +54,10 @@ export default defineConfig({
     <AccessibilityMenu />
   
 </template>
-2️⃣ Nuxt 3
+```
+## 2️⃣ Nuxt 3
+
+```js
 
 // plugins/accessibility.client.ts
 import AccessibilityMenuPlugin from 'accessibility-menu'
@@ -145,6 +148,37 @@ import { useAccessibility } from 'accessibility-menu'
 const { fontSize, isDyslexicFont, config } = useAccessibility()
 console.log('Configuración:', config.value)
 </script>
+```
+
+## 🎨 Control de Tema (Claro/Oscuro)
+
+El componente soporta tres modos de tema:
+
+- **`auto`** (por defecto): Detecta automáticamente las preferencias del sistema del usuario
+- **`light`**: Forzar tema claro
+- **`dark`**: Forzar tema oscuro
+
+### Ejemplo de Uso
+
+```vue
+<template>
+  <!-- Tema automático (por defecto) -->
+  <AccessibilityMenu />
+
+  <!-- Forzar tema claro -->
+  <AccessibilityMenu theme="light" />
+
+  <!-- Forzar tema oscuro -->
+  <AccessibilityMenu theme="dark" />
+</template>
+```
+
+### Con TypeScript
+
+```typescript
+import { AccessibilityMenu, type ThemeMode } from 'accessibility-menu'
+
+const theme: ThemeMode = 'dark'
 ```
 
 ## 🎨 Personalización de Colores

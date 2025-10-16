@@ -33,7 +33,8 @@ export {
 // Exportar tipos de configuración
 export type {
   AccessibilityColorConfig,
-  AccessibilityConfig
+  AccessibilityConfig,
+  ThemeMode
 } from './composables/useAccessibility'
 
 export type { UseI18nOptions } from './composables/useI18n'

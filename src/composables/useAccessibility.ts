@@ -1,6 +1,8 @@
 import { ref, computed } from "vue"
 import type { LocaleCode, AccessibilityMessages } from '../locales/types'
 
+export type ThemeMode = 'light' | 'dark' | 'auto'
+
 export interface AccessibilityColorConfig {
   primaryColor?: string
   primaryHoverColor?: string
@@ -15,6 +17,7 @@ export interface AccessibilityConfig {
   locale?: LocaleCode
   messages?: Partial<Record<LocaleCode, Partial<AccessibilityMessages>>>
   useGlobalI18n?: boolean
+  theme?: ThemeMode
 }
 
 const defaultColors: Required<AccessibilityColorConfig> = {
@@ -53,7 +56,8 @@ export const useAccessibility = (config?: AccessibilityConfig) => {
       colors: colors.value,
       locale: config?.locale,
       messages: config?.messages,
-      useGlobalI18n: config?.useGlobalI18n
+      useGlobalI18n: config?.useGlobalI18n,
+      theme: config?.theme
     }))
 
     return {

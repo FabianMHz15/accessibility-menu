@@ -1,23 +1,33 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, onUnmounted } from 'vue';
-import type { AccessibilityColorConfig } from '../composables/useAccessibility';
+import { ref, onMounted, watch, onUnmounted, computed } from 'vue';
+import type { AccessibilityColorConfig, ThemeMode } from '../composables/useAccessibility';
 import type { LocaleCode, AccessibilityMessages } from '../locales/types';
 import { useI18n } from '../composables/useI18n';
 import { availableLocales } from '../locales';
 
-// Props para configuración de colores e i18n
-const props = defineProps<{
+// Props para configuración de colores, i18n y tema
+const props = withDefaults(defineProps<{
   colors?: AccessibilityColorConfig
   locale?: LocaleCode
   messages?: Partial<Record<LocaleCode, Partial<AccessibilityMessages>>>
   useGlobalI18n?: boolean
-}>();
+  theme?: ThemeMode
+}>(), {
+  theme: 'auto'
+});
 
 // Inicializar i18n
 const { t, ttsLang, locale, setLocale } = useI18n({
   locale: props.locale,
   messages: props.messages,
   useGlobalI18n: props.useGlobalI18n
+});
+
+// Clases dinámicas del tema
+const themeClass = computed(() => {
+  if (props.theme === 'light') return 'theme-light';
+  if (props.theme === 'dark') return 'theme-dark';
+  return 'theme-auto'; // auto
 });
 
 // Estado del menú
@@ -389,7 +399,7 @@ watch(isOpen, (newValue) => {
         <transition name="panel">
             <div
                 v-if="isOpen"
-                class="accessibility-panel"
+                :class="['accessibility-panel', themeClass]"
             >
                 <!-- Header -->
                 <div class="panel-header">
@@ -618,7 +628,7 @@ watch(isOpen, (newValue) => {
                                 :class="['language-button', { 'language-button-active': locale === lang.code }]"
                                 :aria-label="`${t('language')}: ${lang.name}`"
                             >
-                                <span class="language-flag">{{ lang.flag }}</span>
+                               
                                 <span class="language-name">{{ lang.name }}</span>
                             </button>
                         </div>
@@ -718,10 +728,14 @@ watch(isOpen, (newValue) => {
     overflow-y: auto;
 }
 
-@media (prefers-color-scheme: dark) {
-    .accessibility-panel {
+.accessibility-panel.theme-auto {
+    @media (prefers-color-scheme: dark) {
         background-color: #111827;
     }
+}
+
+.accessibility-panel.theme-dark {
+    background-color: #111827;
 }
 
 .panel-enter-active,
@@ -747,11 +761,16 @@ watch(isOpen, (newValue) => {
     z-index: 10;
 }
 
-@media (prefers-color-scheme: dark) {
-    .panel-header {
+.theme-auto .panel-header {
+    @media (prefers-color-scheme: dark) {
         background-color: #111827;
         border-bottom-color: #1f2937;
     }
+}
+
+.theme-dark .panel-header {
+    background-color: #111827;
+    border-bottom-color: #1f2937;
 }
 
 .header-content {
@@ -773,10 +792,14 @@ watch(isOpen, (newValue) => {
     margin: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-    .header-title {
+.theme-auto .header-title {
+    @media (prefers-color-scheme: dark) {
         color: white;
     }
+}
+
+.theme-dark .header-title {
+    color: white;
 }
 
 .header-subtitle {
@@ -785,10 +808,14 @@ watch(isOpen, (newValue) => {
     margin: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-    .header-subtitle {
+.theme-auto .header-subtitle {
+    @media (prefers-color-scheme: dark) {
         color: #9ca3af;
     }
+}
+
+.theme-dark .header-subtitle {
+    color: #9ca3af;
 }
 
 .close-button {
@@ -804,10 +831,14 @@ watch(isOpen, (newValue) => {
     background-color: #f3f4f6;
 }
 
-@media (prefers-color-scheme: dark) {
-    .close-button:hover {
+.theme-auto .close-button:hover {
+    @media (prefers-color-scheme: dark) {
         background-color: #1f2937;
     }
+}
+
+.theme-dark .close-button:hover {
+    background-color: #1f2937;
 }
 
 .close-button:focus {
@@ -819,10 +850,14 @@ watch(isOpen, (newValue) => {
     color: #111827;
 }
 
-@media (prefers-color-scheme: dark) {
-    .close-button .icon {
+.theme-auto .close-button .icon {
+    @media (prefers-color-scheme: dark) {
         color: white;
     }
+}
+
+.theme-dark .close-button .icon {
+    color: white;
 }
 
 /* Body */
@@ -854,10 +889,14 @@ watch(isOpen, (newValue) => {
     gap: 0.5rem;
 }
 
-@media (prefers-color-scheme: dark) {
-    .label {
+.theme-auto .label {
+    @media (prefers-color-scheme: dark) {
         color: #d1d5db;
     }
+}
+
+.theme-dark .label {
+    color: #d1d5db;
 }
 
 .label-icon {
@@ -874,11 +913,16 @@ watch(isOpen, (newValue) => {
     border-radius: 0.25rem;
 }
 
-@media (prefers-color-scheme: dark) {
-    .badge {
+.theme-auto .badge {
+    @media (prefers-color-scheme: dark) {
         background-color: #1e3a8a;
         color: #bfdbfe;
     }
+}
+
+.theme-dark .badge {
+    background-color: #1e3a8a;
+    color: #bfdbfe;
 }
 
 /* Font controls */
@@ -904,16 +948,28 @@ watch(isOpen, (newValue) => {
     background-color: #f9fafb;
 }
 
-@media (prefers-color-scheme: dark) {
-    .control-button {
+.theme-auto .control-button {
+    @media (prefers-color-scheme: dark) {
         background-color: #111827;
         border-color: #4b5563;
         color: white;
     }
+}
 
-    .control-button:hover:not(:disabled) {
+.theme-auto .control-button:hover:not(:disabled) {
+    @media (prefers-color-scheme: dark) {
         background-color: #1f2937;
     }
+}
+
+.theme-dark .control-button {
+    background-color: #111827;
+    border-color: #4b5563;
+    color: white;
+}
+
+.theme-dark .control-button:hover:not(:disabled) {
+    background-color: #1f2937;
 }
 
 .control-button:disabled {
@@ -948,10 +1004,14 @@ watch(isOpen, (newValue) => {
     cursor: pointer;
 }
 
-@media (prefers-color-scheme: dark) {
-    .slider {
+.theme-auto .slider {
+    @media (prefers-color-scheme: dark) {
         background-color: #374151;
     }
+}
+
+.theme-dark .slider {
+    background-color: #374151;
 }
 
 .reset-font-button {
@@ -969,14 +1029,24 @@ watch(isOpen, (newValue) => {
     color: #111827;
 }
 
-@media (prefers-color-scheme: dark) {
-    .reset-font-button {
+.theme-auto .reset-font-button {
+    @media (prefers-color-scheme: dark) {
         color: #9ca3af;
     }
+}
 
-    .reset-font-button:hover {
+.theme-auto .reset-font-button:hover {
+    @media (prefers-color-scheme: dark) {
         color: white;
     }
+}
+
+.theme-dark .reset-font-button {
+    color: #9ca3af;
+}
+
+.theme-dark .reset-font-button:hover {
+    color: white;
 }
 
 /* Divider */
@@ -984,10 +1054,14 @@ watch(isOpen, (newValue) => {
     border-top: 1px solid #e5e7eb;
 }
 
-@media (prefers-color-scheme: dark) {
-    .divider {
+.theme-auto .divider {
+    @media (prefers-color-scheme: dark) {
         border-top-color: #374151;
     }
+}
+
+.theme-dark .divider {
+    border-top-color: #374151;
 }
 
 /* Toggle */
@@ -1020,10 +1094,14 @@ watch(isOpen, (newValue) => {
     background-color: var(--accessibility-primary);
 }
 
-@media (prefers-color-scheme: dark) {
-    .toggle-button {
+.theme-auto .toggle-button {
+    @media (prefers-color-scheme: dark) {
         background-color: #374151;
     }
+}
+
+.theme-dark .toggle-button {
+    background-color: #374151;
 }
 
 .toggle-circle {
@@ -1092,10 +1170,14 @@ watch(isOpen, (newValue) => {
     margin: 0.25rem 0 0 0;
 }
 
-@media (prefers-color-scheme: dark) {
-    .description {
+.theme-auto .description {
+    @media (prefers-color-scheme: dark) {
         color: #9ca3af;
     }
+}
+
+.theme-dark .description {
+    color: #9ca3af;
 }
 
 /* Reset button */
@@ -1119,16 +1201,28 @@ watch(isOpen, (newValue) => {
     background-color: #e5e7eb;
 }
 
-@media (prefers-color-scheme: dark) {
-    .reset-button {
+.theme-auto .reset-button {
+    @media (prefers-color-scheme: dark) {
         color: #d1d5db;
         background-color: #1f2937;
         border-color: #4b5563;
     }
+}
 
-    .reset-button:hover {
+.theme-auto .reset-button:hover {
+    @media (prefers-color-scheme: dark) {
         background-color: #374151;
     }
+}
+
+.theme-dark .reset-button {
+    color: #d1d5db;
+    background-color: #1f2937;
+    border-color: #4b5563;
+}
+
+.theme-dark .reset-button:hover {
+    background-color: #374151;
 }
 
 .reset-button:focus {
@@ -1146,11 +1240,16 @@ watch(isOpen, (newValue) => {
     border-radius: 0.5rem;
 }
 
-@media (prefers-color-scheme: dark) {
-    .info-box {
+.theme-auto .info-box {
+    @media (prefers-color-scheme: dark) {
         background-color: rgba(30, 58, 138, 0.2);
         border-color: #1e3a8a;
     }
+}
+
+.theme-dark .info-box {
+    background-color: rgba(30, 58, 138, 0.2);
+    border-color: #1e3a8a;
 }
 
 .info-icon {
@@ -1160,10 +1259,14 @@ watch(isOpen, (newValue) => {
     flex-shrink: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-    .info-icon {
+.theme-auto .info-icon {
+    @media (prefers-color-scheme: dark) {
         color: color-mix(in srgb, var(--accessibility-primary) 80%, white);
     }
+}
+
+.theme-dark .info-icon {
+    color: color-mix(in srgb, var(--accessibility-primary) 80%, white);
 }
 
 .info-title {
@@ -1173,10 +1276,14 @@ watch(isOpen, (newValue) => {
     margin: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-    .info-title {
+.theme-auto .info-title {
+    @media (prefers-color-scheme: dark) {
         color: #bfdbfe;
     }
+}
+
+.theme-dark .info-title {
+    color: #bfdbfe;
 }
 
 .info-text {
@@ -1185,10 +1292,14 @@ watch(isOpen, (newValue) => {
     margin: 0.25rem 0 0 0;
 }
 
-@media (prefers-color-scheme: dark) {
-    .info-text {
+.theme-auto .info-text {
+    @media (prefers-color-scheme: dark) {
         color: #93c5fd;
     }
+}
+
+.theme-dark .info-text {
+    color: #93c5fd;
 }
 
 /* Icons */
@@ -1227,16 +1338,28 @@ watch(isOpen, (newValue) => {
     border-color: #9ca3af;
 }
 
-@media (prefers-color-scheme: dark) {
-    .language-button {
+.theme-auto .language-button {
+    @media (prefers-color-scheme: dark) {
         background-color: #111827;
         border-color: #4b5563;
     }
+}
 
-    .language-button:hover {
+.theme-auto .language-button:hover {
+    @media (prefers-color-scheme: dark) {
         background-color: #1f2937;
         border-color: #6b7280;
     }
+}
+
+.theme-dark .language-button {
+    background-color: #111827;
+    border-color: #4b5563;
+}
+
+.theme-dark .language-button:hover {
+    background-color: #1f2937;
+    border-color: #6b7280;
 }
 
 .language-button.language-button-active {
@@ -1244,10 +1367,14 @@ watch(isOpen, (newValue) => {
     background-color: color-mix(in srgb, var(--accessibility-primary) 10%, white);
 }
 
-@media (prefers-color-scheme: dark) {
-    .language-button.language-button-active {
+.theme-auto .language-button.language-button-active {
+    @media (prefers-color-scheme: dark) {
         background-color: color-mix(in srgb, var(--accessibility-primary) 20%, #111827);
     }
+}
+
+.theme-dark .language-button.language-button-active {
+    background-color: color-mix(in srgb, var(--accessibility-primary) 20%, #111827);
 }
 
 .language-button:focus {
@@ -1255,10 +1382,7 @@ watch(isOpen, (newValue) => {
     box-shadow: 0 0 0 2px var(--accessibility-primary), 0 0 0 4px color-mix(in srgb, var(--accessibility-primary) 30%, transparent);
 }
 
-.language-flag {
-    font-size: 1.5rem;
-    line-height: 1;
-}
+
 
 .language-name {
     font-size: 0.75rem;
@@ -1266,10 +1390,14 @@ watch(isOpen, (newValue) => {
     color: #374151;
 }
 
-@media (prefers-color-scheme: dark) {
-    .language-name {
+.theme-auto .language-name {
+    @media (prefers-color-scheme: dark) {
         color: #d1d5db;
     }
+}
+
+.theme-dark .language-name {
+    color: #d1d5db;
 }
 
 .language-button-active .language-name {
@@ -1277,9 +1405,13 @@ watch(isOpen, (newValue) => {
     font-weight: 600;
 }
 
-@media (prefers-color-scheme: dark) {
-    .language-button-active .language-name {
+.theme-auto .language-button-active .language-name {
+    @media (prefers-color-scheme: dark) {
         color: color-mix(in srgb, var(--accessibility-primary) 80%, white);
     }
+}
+
+.theme-dark .language-button-active .language-name {
+    color: color-mix(in srgb, var(--accessibility-primary) 80%, white);
 }
 </style>
