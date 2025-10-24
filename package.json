@@ -1,6 +1,6 @@
 {
   "name": "accessibility-menu",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Componente de accesibilidad WCAG 2.1 AA para Vue 3, Nuxt 4 y Laravel",
   "main": "./dist/accessibility-menu.umd.js",
   "module": "./dist/accessibility-menu.es.js",
