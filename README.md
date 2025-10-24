@@ -55,7 +55,7 @@ export default defineConfig({
   
 </template>
 ```
-## 2️⃣ Nuxt 3
+## 2️⃣ Nuxt 4
 
 ```js
 
@@ -70,15 +70,14 @@ export default defineNuxtPlugin((nuxtApp) => {
 ```js
 <!-- app.vue -->
 <template>
-  <UApp>
     <NuxtPage />
-    <AccessibilityMenu />
-  </UApp>
+     <ClientOnly>
+                <component :is="'AccessibilityMenu'" theme="light" />
+    </ClientOnly>
 </template>
 ```
 ## 3️⃣ Laravel + Vite
 ```js
-Sigue la guía de instalación de Nuxt UI para Laravel:
 // resources/js/app.ts
 import { createApp, h } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
